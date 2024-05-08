@@ -5,6 +5,7 @@ import {
   IsDateString,
   IsEnum,
   IsInt,
+  IsISO8601,
   IsNotEmpty,
   IsOptional,
   IsPositive,
@@ -13,8 +14,9 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
-import { DayName } from 'src/config/constant/constant';
+import { DayName } from 'src/common/constant/constant';
 import {
+  IsGreaterThanStartDateTime,
   TimeGreaterThan,
   TimeOverlap,
   UniqueDays,
@@ -25,11 +27,12 @@ export class CreateUnitDto {
   @IsNotEmpty()
   externalUnitId: string;
 
-  @IsDateString()
-  slotStartDatetime: string;
+  @IsISO8601()
+  startDatetime: string;
 
-  @IsDateString()
-  slotEndDatetime: string;
+  @IsISO8601()
+  @IsGreaterThanStartDateTime() // Apply the custom validator
+  endDatetime: string;
 
   @ValidateNested({ each: true }) // Validate each element in the array
   @ArrayNotEmpty({ message: 'At least one day must be provided.' })

@@ -1,22 +1,29 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  JoinColumn,
+  Index,
+} from 'typeorm';
+import { AbstractEntity } from '../../common/entities/abstract.entity';
 import { Unit } from './unit.entity';
 
-
 @Entity()
-export class UnitLeaves {
-    @PrimaryGeneratedColumn({ type: 'bigint', unsigned: true })
-    id: string;
+export class UnitLeaves extends AbstractEntity {
+  @PrimaryGeneratedColumn({ type: 'bigint', unsigned: true })
+  id: string;
 
-    @ManyToOne(() => Unit, unit => unit.unitId)
-    @JoinColumn({ name: 'unitId' })
-    unit: Unit;
+  @Column({ type: 'bigint', unsigned: true })
+  @Index('unitId_idx', { unique: true })
+  unitId: string;
 
-    @Column({ type: 'datetime' })
-    startDatetime: Date;
+  @Column({ type: 'datetime' })
+  startDatetime: Date;
 
-    @Column({ type: 'datetime' })
-    endDatetime: Date;
+  @Column({ type: 'datetime' })
+  endDatetime: Date;
 
-    @Column({ type: 'varchar', length: 255, nullable: true })
-    metaText: string;
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  metaText: string;
 }

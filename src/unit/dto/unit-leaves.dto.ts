@@ -1,32 +1,33 @@
-import { IsDateString, IsOptional, IsString, MaxLength } from 'class-validator';
+import {
+  IsString,
+  IsISO8601,
+  IsOptional,
+  MaxLength,
+  IsNotEmpty,
+} from 'class-validator';
+import { IsGreaterThanStartDateTime } from 'src/config/validators/custom-unit-validators';
 
-export class CreateUnitLeaveDto {
+export class UnitLeaveDto {
   @IsString()
+  @IsNotEmpty()
+  externalUnitId: string;
+
+  @IsString()
+  @IsNotEmpty()
   unitId: string;
 
-  @IsDateString()
-  startDatetime: Date;
+  @IsISO8601()
+  @IsNotEmpty()
+  startDatetime: string;
 
-  @IsDateString()
-  endDatetime: Date;
-
-  @IsOptional()
-  @IsString()
-  @MaxLength(255)
-  metaText?: string;
-}
-
-export class UpdateUnitLeaveDto {
-  @IsDateString()
-  @IsOptional()
-  startDatetime?: Date;
-
-  @IsDateString()
-  @IsOptional()
-  endDatetime?: Date;
+  @IsISO8601()
+  @IsGreaterThanStartDateTime() // Apply the custom validator
+  @IsNotEmpty()
+  endDatetime: string;
 
   @IsOptional()
   @IsString()
   @MaxLength(255)
+  @IsNotEmpty()
   metaText?: string;
 }

@@ -8,3 +8,8 @@ export enum DayName {
   Friday = 'Friday',
   Saturday = 'Saturday',
 }
+
+export enum Order {
+  ASC = 'ASC',
+  DESC = 'DESC',
+}

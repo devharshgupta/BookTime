@@ -87,7 +87,7 @@ export class UnitService {
           maxBooking: time.maxBooking,
           metaText: time.metaText,
           slotDuration: time.slotDuration,
-          unitId: unit.unitId,
+          unit,
         });
       });
     });

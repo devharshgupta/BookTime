@@ -109,3 +109,35 @@ export function UniqueDays(validationOptions?: ValidationOptions) {
     });
   };
 }
+
+@ValidatorConstraint({ name: 'isGreaterThanStartDateTime', async: false })
+export class IsGreaterThanStartDateTimeConstraint
+  implements ValidatorConstraintInterface
+{
+  validate(value: any, args: ValidationArguments) {
+    const startDatetime = args.object['startDatetime'];
+    return (
+      typeof value === 'string' &&
+      typeof startDatetime === 'string' &&
+      value > startDatetime
+    );
+  }
+
+  defaultMessage(args: ValidationArguments) {
+    return `${args.property} must be greater than startDatetime`;
+  }
+}
+
+export function IsGreaterThanStartDateTime(
+  validationOptions?: ValidationOptions,
+) {
+  return function (object: Record<string, any>, propertyName: string) {
+    registerDecorator({
+      target: object.constructor,
+      propertyName: propertyName,
+      options: validationOptions,
+      constraints: [],
+      validator: IsGreaterThanStartDateTimeConstraint,
+    });
+  };
+}

@@ -1,11 +1,22 @@
-import { Entity, PrimaryGeneratedColumn, Column, Check, ManyToOne, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  Check,
+  ManyToOne,
+  JoinColumn,
+  Index,
+} from 'typeorm';
+import { AbstractEntity } from '../../common/entities/abstract.entity';
+import { Unit } from './unit.entity';
 
 @Entity()
-export class UnitSchedule {
+export class UnitSchedule extends AbstractEntity {
   @PrimaryGeneratedColumn({ type: 'bigint', unsigned: true })
   id?: string;
 
   @Column({ type: 'bigint', unsigned: true })
+  @Index('unitId_idx', { unique: true })
   unitId: string;
 
   @Column({ type: 'time' })
@@ -14,7 +25,18 @@ export class UnitSchedule {
   @Column({ type: 'time' })
   endTime: string;
 
-  @Column({ type: 'enum', enum: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'] })
+  @Column({
+    type: 'enum',
+    enum: [
+      'Sunday',
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+    ],
+  })
   day: string;
 
   @Column({ type: 'int' })

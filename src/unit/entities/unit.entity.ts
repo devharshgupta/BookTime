@@ -1,7 +1,8 @@
 import { Entity, Column, Unique, PrimaryGeneratedColumn, Index } from 'typeorm';
+import { AbstractEntity } from '../../common/entities/abstract.entity';
 
 @Entity()
-export class Unit {
+export class Unit extends AbstractEntity {
   @PrimaryGeneratedColumn({ type: 'bigint', unsigned: true })
   unitId: string;
 
@@ -10,16 +11,14 @@ export class Unit {
   externalUnitId: string;
 
   @Column({ type: 'datetime' })
-  slotStartDatetime: Date;
+  startDatetime: Date;
 
   @Column({ type: 'datetime' })
-  slotEndDatetime: Date;
+  endDatetime: Date;
 
   @Column({ type: 'tinyint', unsigned: true, default: 7 })
-  slotFetchSizeInDays: number;
+  slotCacheInDays: number; // total days slots to keep in cache
 
   @Column({ type: 'varchar', length: 45 })
   type: string;
-
-  // TODO : to add cache slots key
 }

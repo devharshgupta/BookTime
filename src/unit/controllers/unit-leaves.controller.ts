@@ -1,35 +1,61 @@
-import { Controller, Get, Post, Put, Delete, Param, Body } from '@nestjs/common';
-import { CreateUnitLeaveDto, UpdateUnitLeaveDto } from '../dto/unit-leaves.dto';
+import {
+  Controller,
+  Get,
+  Post,
+  Param,
+  Body,
+  Query,
+  Put,
+  Delete,
+} from '@nestjs/common';
+import { PageOptionsDto } from 'src/common/dto/page-option.dto';
+import { PageDto } from 'src/common/dto/page.dto';
+import { DeleteResult } from 'typeorm';
+import { UnitLeaveDto } from '../dto/unit-leaves.dto';
 import { UnitLeaves } from '../entities/unit-leaves.entity';
 import { UnitLeavesService } from '../services/unit-leaves.service';
 
-
-@Controller('unit-leaves')
+@Controller('v1/unit-leaves')
 export class UnitLeavesController {
-    constructor(private readonly unitLeavesService: UnitLeavesService) { }
+  constructor(private readonly unitLeavesService: UnitLeavesService) {}
 
-    @Post()
-    async create(@Body() createUnitLeaveDto: CreateUnitLeaveDto): Promise<UnitLeaves> {
-        return this.unitLeavesService.create(createUnitLeaveDto);
-    }
+  // todo if recent leave then update the cache
+  @Post()
+  async create(@Body() createUnitLeaveDto: UnitLeaveDto): Promise<UnitLeaves> {
+    return this.unitLeavesService.create(createUnitLeaveDto);
+  }
 
-    @Get()
-    async findAll(): Promise<UnitLeaves[]> {
-        return this.unitLeavesService.findAll();
-    }
+  @Get('external/:externalUnitId')
+  async findAllLeavesOfExternalUnit(
+    @Param('externalUnitId') externalUnitId: string,
+    @Query() pageOptionsDto: PageOptionsDto,
+  ): Promise<PageDto<UnitLeaves>> {
+    return this.unitLeavesService.findAll(externalUnitId, pageOptionsDto);
+  }
 
-    // @Get(':id')
-    // async findOne(@Param('id') id: string): Promise<UnitLeaves | undefined> {
-    //     return this.unitLeavesService.findOne(+id);
-    // }
+  @Get(':id/external/:externalUnitId')
+  async findOne(
+    @Param('id') id: string,
+    @Param('externalUnitId') externalUnitId: string,
+  ): Promise<UnitLeaves | undefined> {
+    return this.unitLeavesService.findOne(id, externalUnitId);
+  }
 
-    // @Put(':id')
-    // async update(@Param('id') id: string, @Body() updateUnitLeaveDto: UpdateUnitLeaveDto): Promise<UnitLeaves | undefined> {
-    //     return this.unitLeavesService.update(+id, updateUnitLeaveDto);
-    // }
+  // todo if recent leave then update the cache
+  @Put(':id')
+  async update(
+    @Param('id') id: string,
+    @Body() updateUnitLeaveDto: UnitLeaveDto,
+  ): Promise<UnitLeaves | undefined> {
+    return this.unitLeavesService.UpdateOne(id, updateUnitLeaveDto);
+  }
 
-    // @Delete(':id')
-    // async remove(@Param('id') id: string): Promise<void> {
-    //     await this.unitLeavesService.remove(+id);
-    // }
+  // todo if recent leave then update the cache
+  @Delete(':id/external/:externalUnitId')
+  async remove(
+    @Param('id') id: string,
+    @Param('externalUnitId') externalUnitId: string,
+  ): Promise<DeleteResult> {
+    return await this.unitLeavesService.DeleteOne(id, externalUnitId);
+  }
 }

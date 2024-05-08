@@ -7,11 +7,12 @@ import {
   Param,
   Body,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { CreateUnitDto, UpdateUnitDto } from '../dto/unit.dto';
 import { UnitSchedule } from '../entities/unit-schedule.entity';
 import { Unit } from '../entities/unit.entity';
 import { UnitService } from '../services/unit.service';
-
+@ApiTags('Units')
 @Controller('v1/unit')
 export class UnitController {
   constructor(private readonly unitService: UnitService) {}
