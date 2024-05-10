@@ -18,11 +18,21 @@ export class UnitLeaves extends AbstractEntity {
   @Index('unitId_idx', { unique: true })
   unitId: string;
 
-  @Column({ type: 'datetime' })
-  startDatetime: Date;
+  @Column({ type: 'date' })
+  @Index('idx_startDate')
+  startDate: Date;
 
-  @Column({ type: 'datetime' })
-  endDatetime: Date;
+  @Column({ type: 'date' })
+  @Index('idx_endDate')
+  endDate: Date;
+
+  @Column({ type: 'time' })
+  @Index('idx_startTime')
+  startTime: string;
+
+  @Column({ type: 'time' })
+  @Index('idx_endTime')
+  endTime: string;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   metaText: string;

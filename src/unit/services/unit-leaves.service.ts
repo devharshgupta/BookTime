@@ -4,7 +4,6 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { NotFoundError } from 'rxjs';
 import { PageMetaDto } from 'src/common/dto/page-meta.dto';
 import { PageOptionsDto } from 'src/common/dto/page-option.dto';
 import { PageDto } from 'src/common/dto/page.dto';
@@ -51,6 +50,7 @@ export class UnitLeavesService {
     queryBuilder
       .innerJoinAndSelect(Unit, 'unit', 'unit.unitId =UnitLeaves.unitId')
       .where('externalUnitId = :externalUnitId', { externalUnitId });
+
     // Apply pagination (skip and take)
     const [entities, itemCount] = await queryBuilder
       .orderBy('UnitLeaves.createdAt', pageOptionsDto.order)

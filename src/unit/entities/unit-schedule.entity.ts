@@ -1,14 +1,6 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  Check,
-  ManyToOne,
-  JoinColumn,
-  Index,
-} from 'typeorm';
+import { DayName } from 'src/common/constant/constant';
+import { Entity, PrimaryGeneratedColumn, Column, Index } from 'typeorm';
 import { AbstractEntity } from '../../common/entities/abstract.entity';
-import { Unit } from './unit.entity';
 
 @Entity()
 export class UnitSchedule extends AbstractEntity {
@@ -16,28 +8,23 @@ export class UnitSchedule extends AbstractEntity {
   id?: string;
 
   @Column({ type: 'bigint', unsigned: true })
-  @Index('unitId_idx', { unique: true })
+  @Index('unitId_idx')
   unitId: string;
 
   @Column({ type: 'time' })
+  @Index('idx_startTime')
   startTime: string;
 
   @Column({ type: 'time' })
+  @Index('idx_endTime')
   endTime: string;
 
   @Column({
     type: 'enum',
-    enum: [
-      'Sunday',
-      'Monday',
-      'Tuesday',
-      'Wednesday',
-      'Thursday',
-      'Friday',
-      'Saturday',
-    ],
+    enum: DayName,
   })
-  day: string;
+  @Index('idx_DayName')
+  day: DayName;
 
   @Column({ type: 'int' })
   maxBooking: number;

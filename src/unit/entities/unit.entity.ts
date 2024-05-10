@@ -11,9 +11,11 @@ export class Unit extends AbstractEntity {
   externalUnitId: string;
 
   @Column({ type: 'datetime' })
+  @Index('idx_startDatetime')
   startDatetime: Date;
 
   @Column({ type: 'datetime' })
+  @Index('idx_endDatetime')
   endDatetime: Date;
 
   @Column({ type: 'tinyint', unsigned: true, default: 7 })

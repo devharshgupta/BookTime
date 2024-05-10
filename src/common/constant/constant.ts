@@ -9,6 +9,16 @@ export enum DayName {
   Saturday = 'Saturday',
 }
 
+export const DAYS = [
+  'Sunday',
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+];
+
 export enum Order {
   ASC = 'ASC',
   DESC = 'DESC',

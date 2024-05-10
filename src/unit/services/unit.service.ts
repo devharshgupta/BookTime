@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { GenerateTimeSlots } from 'src/common/utils/generateTimeSlots';
 import { Repository } from 'typeorm';
 import { CreateUnitDto } from '../dto/unit.dto';
 import { UnitSchedule } from '../entities/unit-schedule.entity';
@@ -22,16 +23,19 @@ export class UnitService {
 
     const unitScheduleToInsert = [];
     createUnitDto.weeklyTimings.forEach((day) => {
-      day.slots.forEach((time) => {
-        unitScheduleToInsert.push({
-          day: day.dayName,
-          startTime: time.startTime,
-          endTime: time.endTime,
-          maxBooking: time.maxBooking,
-          metaText: time.metaText,
-          slotDuration: time.slotDuration,
-          unitId: unit.unitId,
-        });
+      day.slots.forEach((slot) => {
+        const generatedTimeSlots = GenerateTimeSlots(slot);
+        generatedTimeSlots.forEach((time) =>
+          unitScheduleToInsert.push({
+            day: day.dayName,
+            startTime: time.startTime,
+            endTime: time.endTime,
+            maxBooking: time.maxBooking,
+            metaText: time.metaText,
+            slotDuration: time.slotDuration,
+            unitId: unit.unitId,
+          }),
+        );
       });
     });
 

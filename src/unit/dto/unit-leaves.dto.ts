@@ -1,11 +1,16 @@
 import {
   IsString,
-  IsISO8601,
   IsOptional,
   MaxLength,
   IsNotEmpty,
+  Matches,
+  IsDateString,
 } from 'class-validator';
-import { IsGreaterThanStartDateTime } from 'src/config/validators/custom-unit-validators';
+import {
+  isGreaterThanStartDate,
+  TimeFormatAndIncrement,
+  TimeGreaterThan,
+} from 'src/config/validators/custom-unit-validators';
 
 export class UnitLeaveDto {
   @IsString()
@@ -16,14 +21,25 @@ export class UnitLeaveDto {
   @IsNotEmpty()
   unitId: string;
 
-  @IsISO8601()
+  @IsDateString()
   @IsNotEmpty()
-  startDatetime: string;
+  startDate: string;
 
-  @IsISO8601()
-  @IsGreaterThanStartDateTime() // Apply the custom validator
+  @IsDateString()
+  @isGreaterThanStartDate() // Custom validator to check if end date is greater than start date
   @IsNotEmpty()
-  endDatetime: string;
+  endDate: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @TimeFormatAndIncrement()
+  startTime: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @TimeFormatAndIncrement()
+  @TimeGreaterThan('startTime') // Apply custom validation decorator
+  endTime: string;
 
   @IsOptional()
   @IsString()

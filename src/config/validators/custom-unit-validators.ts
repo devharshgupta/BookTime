@@ -4,6 +4,7 @@ import {
   ValidationArguments,
   ValidatorConstraint,
   ValidatorConstraintInterface,
+  Matches,
 } from 'class-validator';
 
 @ValidatorConstraint({ name: 'timeGreaterThan', async: false })
@@ -36,6 +37,14 @@ export function TimeGreaterThan(
       validator: TimeGreaterThanConstraint,
     });
   };
+}
+
+export function TimeFormatAndIncrement(options?: ValidationOptions) {
+  return Matches(/^(0[0-9]|1[0-9]|2[0-3]):([0-5][05])$/, {
+    message:
+      'Invalid time format. Use HH:mm (24-hour format) with minutes in increments of 5.',
+    ...options,
+  });
 }
 
 @ValidatorConstraint({ name: 'timeOverlap', async: false })
@@ -138,6 +147,33 @@ export function IsGreaterThanStartDateTime(
       options: validationOptions,
       constraints: [],
       validator: IsGreaterThanStartDateTimeConstraint,
+    });
+  };
+}
+
+@ValidatorConstraint({ name: 'isGreaterThanStartDate', async: false })
+export class IsGreaterThanStartDateConstraint
+  implements ValidatorConstraintInterface
+{
+  validate(value: string, args: ValidationArguments) {
+    const startDate = new Date(args.object['startDate']);
+    const endDate = new Date(value);
+    return endDate > startDate;
+  }
+
+  defaultMessage(args: ValidationArguments) {
+    return 'End date must be greater than start date.';
+  }
+}
+
+export function isGreaterThanStartDate(validationOptions?: ValidationOptions) {
+  return function (object: Record<string, any>, propertyName: string) {
+    registerDecorator({
+      target: object.constructor,
+      propertyName: propertyName,
+      options: validationOptions,
+      constraints: [],
+      validator: IsGreaterThanStartDateConstraint,
     });
   };
 }

@@ -50,6 +50,11 @@ export class CreateUnitDto {
 }
 
 export class SlotTime {
+  // Todo - can apply validation that diffrence between endTime and startTime cannot be greater than slot duration
+  @IsPositive()
+  @IsNotEmpty()
+  slotDuration: number;
+
   @IsString()
   @IsNotEmpty()
   @Matches(/^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/, {
@@ -73,10 +78,6 @@ export class SlotTime {
   @IsString()
   @IsOptional()
   metaText?: string;
-
-  @IsPositive()
-  @IsNotEmpty()
-  slotDuration: number;
 }
 
 export class DaySlot {
