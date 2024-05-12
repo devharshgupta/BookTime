@@ -27,13 +27,13 @@ export class UnitService {
         const generatedTimeSlots = GenerateTimeSlots(slot);
         generatedTimeSlots.forEach((time) =>
           unitScheduleToInsert.push({
-            day: day.dayName,
+            weekDayName: day.weekDayName,
             startTime: time.startTime,
             endTime: time.endTime,
             maxBooking: time.maxBooking,
             metaText: time.metaText,
             slotDuration: time.slotDuration,
-            unitId: unit.unitId,
+            unitId: unit?.id,
           }),
         );
       });
@@ -68,7 +68,7 @@ export class UnitService {
       where: { externalUnitId: createUnitDto.externalUnitId },
     });
 
-    if (!existingUnit.unitId) {
+    if (!existingUnit.id) {
       throw new BadRequestException(
         `no unit found with externalUnitId : ${createUnitDto.externalUnitId}`,
       );
@@ -85,7 +85,7 @@ export class UnitService {
     weeklyTimings.forEach((day) => {
       day.slots.forEach((time) => {
         unitScheduleToInsert.push({
-          day: day.dayName,
+          weekDayName: day.weekDayName,
           startTime: time.startTime,
           endTime: time.endTime,
           maxBooking: time.maxBooking,
@@ -98,12 +98,10 @@ export class UnitService {
     const deleteResult = await this.UnitScheduleRepository.createQueryBuilder()
       .delete()
       .from(UnitSchedule)
-      .where('unitId = :unitId', { unitId: unit.unitId })
+      .where('unitId = :unitId', { unitId: unit.id })
       .execute();
 
-    console.log(
-      `Deleted ${deleteResult.affected} schedules for ${unit.unitId}.`,
-    );
+    console.log(`Deleted ${deleteResult.affected} schedules for ${unit.id}.`);
 
     const unitSchedules =
       this.UnitScheduleRepository.create(unitScheduleToInsert);

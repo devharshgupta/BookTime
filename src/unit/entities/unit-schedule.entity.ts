@@ -1,12 +1,9 @@
 import { DayName } from 'src/common/constant/constant';
+import { BaseEntity } from 'src/common/entities/base.entity';
 import { Entity, PrimaryGeneratedColumn, Column, Index } from 'typeorm';
-import { AbstractEntity } from '../../common/entities/abstract.entity';
 
 @Entity()
-export class UnitSchedule extends AbstractEntity {
-  @PrimaryGeneratedColumn({ type: 'bigint', unsigned: true })
-  id?: string;
-
+export class UnitSchedule extends BaseEntity {
   @Column({ type: 'bigint', unsigned: true })
   @Index('unitId_idx')
   unitId: string;
@@ -24,7 +21,7 @@ export class UnitSchedule extends AbstractEntity {
     enum: DayName,
   })
   @Index('idx_DayName')
-  day: DayName;
+  weekDayName: DayName;
 
   @Column({ type: 'int' })
   maxBooking: number;

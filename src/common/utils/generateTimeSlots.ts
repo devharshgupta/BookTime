@@ -14,10 +14,12 @@ export function GenerateTimeSlots(options: SlotTime): SlotTime[] {
       startTime: currentSlot.toLocaleTimeString([], {
         hour: '2-digit',
         minute: '2-digit',
+        hour12: false, // Use 24-hour format
       }),
       endTime: nextSlot.toLocaleTimeString([], {
         hour: '2-digit',
         minute: '2-digit',
+        hour12: false, // Use 24-hour format
       }),
       maxBooking: options.maxBooking,
       slotDuration: options.slotDuration,

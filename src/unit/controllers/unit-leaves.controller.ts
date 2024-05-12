@@ -25,6 +25,7 @@ export class UnitLeavesController {
     return this.unitLeavesService.create(createUnitLeaveDto);
   }
 
+  // Todo : add query to get the leaves for range of start date and end date
   @Get('external/:externalUnitId')
   async findAllLeavesOfExternalUnit(
     @Param('externalUnitId') externalUnitId: string,

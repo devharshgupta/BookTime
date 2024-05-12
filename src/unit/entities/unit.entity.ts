@@ -1,22 +1,19 @@
-import { Entity, Column, Unique, PrimaryGeneratedColumn, Index } from 'typeorm';
-import { AbstractEntity } from '../../common/entities/abstract.entity';
+import { Entity, Column, PrimaryGeneratedColumn, Index } from 'typeorm';
+import { BaseEntity } from '../../common/entities/base.entity';
 
 @Entity()
-export class Unit extends AbstractEntity {
-  @PrimaryGeneratedColumn({ type: 'bigint', unsigned: true })
-  unitId: string;
-
+export class Unit extends BaseEntity {
   @Column({ type: 'varchar', length: 255 })
   @Index('unique_externalUnitId', { unique: true })
   externalUnitId: string;
 
-  @Column({ type: 'datetime' })
-  @Index('idx_startDatetime')
-  startDatetime: Date;
+  @Column({ type: 'date' })
+  @Index('idx_startDate')
+  startDate: string;
 
-  @Column({ type: 'datetime' })
-  @Index('idx_endDatetime')
-  endDatetime: Date;
+  @Column({ type: 'date' })
+  @Index('idx_endDate')
+  endDate: string;
 
   @Column({ type: 'tinyint', unsigned: true, default: 7 })
   slotCacheInDays: number; // total days slots to keep in cache

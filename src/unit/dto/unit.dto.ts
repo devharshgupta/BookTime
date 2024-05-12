@@ -5,34 +5,40 @@ import {
   IsDateString,
   IsEnum,
   IsInt,
-  IsISO8601,
   IsNotEmpty,
   IsOptional,
   IsPositive,
   IsString,
-  Matches,
+  Max,
   Min,
+  Validate,
   ValidateNested,
 } from 'class-validator';
 import { DayName } from 'src/common/constant/constant';
 import {
-  IsGreaterThanStartDateTime,
-  TimeGreaterThan,
+  EndTimeValidator,
+  IncrementValidator,
+  isGreaterThanStartDate,
+  TimeFormatAndIncrement,
   TimeOverlap,
   UniqueDays,
-} from 'src/config/validators/custom-unit-validators';
+} from 'src/config/validators/custom-class-validators';
+import { UnitSchedule } from '../entities/unit-schedule.entity';
+import { Unit } from '../entities/unit.entity';
 
-export class CreateUnitDto {
+export class CreateUnitDto implements Partial<Unit> {
   @IsString()
   @IsNotEmpty()
   externalUnitId: string;
 
-  @IsISO8601()
-  startDatetime: string;
+  @IsDateString()
+  @IsNotEmpty()
+  startDate: string;
 
-  @IsISO8601()
-  @IsGreaterThanStartDateTime() // Apply the custom validator
-  endDatetime: string;
+  @IsDateString()
+  @isGreaterThanStartDate() // Custom validator to check if end date is greater than start date
+  @IsNotEmpty()
+  endDate: string;
 
   @ValidateNested({ each: true }) // Validate each element in the array
   @ArrayNotEmpty({ message: 'At least one day must be provided.' })
@@ -49,25 +55,21 @@ export class CreateUnitDto {
   type: string;
 }
 
-export class SlotTime {
-  // Todo - can apply validation that diffrence between endTime and startTime cannot be greater than slot duration
-  @IsPositive()
+export class SlotTime implements Partial<UnitSchedule> {
+  @Validate(IncrementValidator, [5]) // Example: Increment of 5
   @IsNotEmpty()
+  @Max(360) // 6 hours (to limt the max slot duration)
   slotDuration: number;
 
   @IsString()
   @IsNotEmpty()
-  @Matches(/^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/, {
-    message: 'Invalid time format. Use HH:mm (24-hour format).',
-  })
+  @TimeFormatAndIncrement()
   startTime: string;
 
   @IsString()
   @IsNotEmpty()
-  @Matches(/^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/, {
-    message: 'Invalid time format. Use HH:mm (24-hour format).',
-  })
-  @TimeGreaterThan('startTime') // Apply custom validation decorator
+  @TimeFormatAndIncrement()
+  @Validate(EndTimeValidator) // Validate the end time based on start time and slot duration
   endTime: string;
 
   @IsInt({ message: 'Value must be an integer.' })
@@ -84,7 +86,7 @@ export class DaySlot {
   @IsEnum(DayName, {
     message: 'Invalid day name. Use Sunday, Monday, Tuesday, etc.',
   })
-  dayName: DayName;
+  weekDayName: DayName;
 
   @ValidateNested({ each: true }) // Validate each element in the array
   @ArrayNotEmpty({ message: 'At least one slot must be provided.' })

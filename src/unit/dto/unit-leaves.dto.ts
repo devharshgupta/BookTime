@@ -10,9 +10,10 @@ import {
   isGreaterThanStartDate,
   TimeFormatAndIncrement,
   TimeGreaterThan,
-} from 'src/config/validators/custom-unit-validators';
+} from 'src/config/validators/custom-class-validators';
+import { UnitLeaves } from '../entities/unit-leaves.entity';
 
-export class UnitLeaveDto {
+export class UnitLeaveDto implements Partial<UnitLeaves> {
   @IsString()
   @IsNotEmpty()
   externalUnitId: string;

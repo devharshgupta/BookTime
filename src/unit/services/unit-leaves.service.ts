@@ -28,15 +28,16 @@ export class UnitLeavesService {
       where: { externalUnitId: createUnitLeaveDto.externalUnitId },
     });
 
-    if (!unit?.unitId) {
+    if (!unit?.id) {
       throw new BadRequestException(
         `No unit doesnot exists with externalUnitId : ${createUnitLeaveDto.externalUnitId}`,
       );
     }
 
     // Todo - to check if the leaves is before the unit slotCacheInDays if it is then you need to clear cache from redis
+    // Todo - to check if the leave of the day where booking is already made in the cache
     const unitLeave = this.unitLeavesRepository.create(createUnitLeaveDto);
-    unitLeave.unitId = unit.unitId;
+    unitLeave.unitId = unit.id;
     return await this.unitLeavesRepository.save(unitLeave);
   }
 

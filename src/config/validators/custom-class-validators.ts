@@ -92,10 +92,10 @@ export class UniqueDaysConstraint implements ValidatorConstraintInterface {
     const daysSet = new Set<string>();
 
     for (const weeklyTiming of weeklyTimings) {
-      if (daysSet.has(weeklyTiming.dayName)) {
+      if (daysSet.has(weeklyTiming.weekDayName)) {
         return false; // Duplicate day found
       } else {
-        daysSet.add(weeklyTiming.dayName);
+        daysSet.add(weeklyTiming.weekDayName);
       }
     }
 
@@ -176,4 +176,58 @@ export function isGreaterThanStartDate(validationOptions?: ValidationOptions) {
       validator: IsGreaterThanStartDateConstraint,
     });
   };
+}
+
+@ValidatorConstraint({ name: 'increment', async: false })
+export class IncrementValidator implements ValidatorConstraintInterface {
+  validate(value: any, args: ValidationArguments) {
+    const incrementValue = args.constraints[0];
+    if (!Number.isInteger(value) || value <= 0) {
+      return false; // Value must be a positive integer
+    }
+    if (value % incrementValue !== 0) {
+      return false; // Value must be in the increment of the provided number
+    }
+    return true;
+  }
+
+  defaultMessage(args: ValidationArguments) {
+    const incrementValue = args.constraints[0];
+    return `The slot duration must be a positive integer and in the increment of ${incrementValue}.`;
+  }
+}
+
+@ValidatorConstraint({ name: 'timeSlots', async: false })
+export class EndTimeValidator implements ValidatorConstraintInterface {
+  validate(endTime: string, args: ValidationArguments) {
+    const startTime = args.object['startTime'];
+    const slotDuration = args.object['slotDuration'];
+
+    if (!startTime || !slotDuration) {
+      return false; // Missing required properties
+    }
+
+    const startTimeMinutes = timeToMinutes(startTime);
+    const endTimeMinutes = timeToMinutes(endTime);
+    const difference = endTimeMinutes - startTimeMinutes;
+
+    if (difference <= 0) {
+      return false; // End time must be after start time
+    }
+
+    if (difference % slotDuration !== 0) {
+      return false; // Difference must be a multiple of slot duration
+    }
+
+    return true;
+  }
+
+  defaultMessage(args: ValidationArguments) {
+    return 'The difference between end time and start time should be a multiple of slot duration.';
+  }
+}
+
+function timeToMinutes(time: string): number {
+  const [hours, minutes] = time.split(':').map(Number);
+  return hours * 60 + minutes;
 }
