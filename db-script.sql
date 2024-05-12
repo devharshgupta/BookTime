@@ -1,9 +1,9 @@
 
 --  Statement to create calender table
 CREATE TABLE calendar (
-    calendar_date DATE PRIMARY KEY,
-    calendar_day ENUM('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'),
-    INDEX idx_calendar_day (calendar_day)
+    calendarDate DATE PRIMARY KEY,
+    calendarDay ENUM('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'),
+    INDEX idx_calendar_day (calendarDay)
 );
 
 -- Procedure To Generate calender Table
@@ -15,7 +15,7 @@ BEGIN
     SET currentDate = startDate;
 
     WHILE currentDate <= endDate DO
-        INSERT INTO calendar (calendar_date, calendar_day)
+        INSERT INTO calendar (calendarDate, calendarDay)
         VALUES (currentDate, UPPER(DATE_FORMAT(currentDate, '%W')));
 
         SET currentDate = DATE_ADD(currentDate, INTERVAL 1 DAY);
