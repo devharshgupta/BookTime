@@ -49,7 +49,7 @@ export class UnitLeavesService {
       this.unitLeavesRepository.createQueryBuilder('UnitLeaves');
 
     queryBuilder
-      .innerJoinAndSelect(Unit, 'unit', 'unit.unitId =UnitLeaves.unitId')
+      .innerJoinAndSelect(Unit, 'unit', 'unit.id =UnitLeaves.unitId')
       .where('externalUnitId = :externalUnitId', { externalUnitId });
 
     // Apply pagination (skip and take)
@@ -68,9 +68,9 @@ export class UnitLeavesService {
       this.unitLeavesRepository.createQueryBuilder('UnitLeaves');
 
     const result = await queryBuilder
-      .innerJoinAndSelect(Unit, 'unit', 'unit.unitId =UnitLeaves.unitId')
+      .innerJoinAndSelect(Unit, 'unit', 'unit.id =UnitLeaves.unitId')
       .where('externalUnitId = :externalUnitId', { externalUnitId })
-      .andWhere('id = :id', { id })
+      .andWhere('UnitLeaves.id = :id', { id })
       .getOne();
 
     if (!result?.id) {
