@@ -5,11 +5,14 @@ import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import * as path from 'path';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { RedisModule } from './common/redis/redis.module';
+
 import { TypeORMExceptionFilter } from './config/filters/typeorm-exception-filter';
 import { UnitModule } from './unit/unit.module';
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({ isGlobal: true }),
+    RedisModule,
     TypeOrmModule.forRoot({
       type: 'mysql',
       host: process.env.DB_HOST,
@@ -26,6 +29,7 @@ import { UnitModule } from './unit/unit.module';
   controllers: [AppController],
   providers: [
     AppService,
+
     {
       provide: APP_FILTER,
       useClass: TypeORMExceptionFilter,

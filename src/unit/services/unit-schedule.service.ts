@@ -19,7 +19,6 @@ export class UnitScheduleService {
   async getUnitSchedule(externalUnitId: string) {
     const startDate = '2024-05-14';
     const endDate = '2024-05-24';
-    // const externalUnitId = 5;
 
     const query = this.unitScheduleRepository
       .createQueryBuilder('unit_schedule')
