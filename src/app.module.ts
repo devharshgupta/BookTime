@@ -29,7 +29,6 @@ import { UnitModule } from './unit/unit.module';
   controllers: [AppController],
   providers: [
     AppService,
-
     {
       provide: APP_FILTER,
       useClass: TypeORMExceptionFilter,

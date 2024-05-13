@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { RedisModule } from 'src/common/redis/redis.module';
+import { RedisService } from 'src/common/redis/redis.service';
 import { UnitLeavesController } from './controllers/unit-leaves.controller';
 import { UnitScheduleController } from './controllers/unit-schedule.controller';
 import { UnitController } from './controllers/unit.controller';
@@ -10,10 +12,9 @@ import { UnitLeavesService } from './services/unit-leaves.service';
 import { UnitScheduleService } from './services/unit-schedule.service';
 import { UnitService } from './services/unit.service';
 
-
 @Module({
   imports: [TypeOrmModule.forFeature([Unit, UnitSchedule, UnitLeaves])],
   controllers: [UnitController, UnitScheduleController, UnitLeavesController],
   providers: [UnitService, UnitScheduleService, UnitLeavesService],
 })
-export class UnitModule { }
+export class UnitModule {}

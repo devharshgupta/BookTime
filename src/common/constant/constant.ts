@@ -23,3 +23,7 @@ export enum Order {
   ASC = 'ASC',
   DESC = 'DESC',
 }
+
+export enum TimeZone {
+  'IST' = 'Asia/Kolkata',
+}

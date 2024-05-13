@@ -31,11 +31,6 @@ export class UnitController {
     return this.unitService.updateAndSchedule(createUnitDto);
   }
 
-  // @Get()
-  // async findAll(): Promise<Unit[]> {
-  //     return this.unitService.findAll();
-  // }
-
   @Get('external/:externalUnitId')
   async findOne(
     @Param('externalUnitId') externalUnitId: string,
