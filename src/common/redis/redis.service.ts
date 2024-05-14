@@ -85,4 +85,44 @@ export class RedisService {
       throw new Error(err); // Or handle the error differently based on your needs
     }
   }
+  async updateBookingCount(
+    slotId: string,
+    bookingCount: number,
+  ): Promise<string | null> {
+    const luaScript = `
+      local key = KEYS[1]
+      local bookingCount = tonumber(ARGV[1])
+      
+      local data = redis.call('GET', key)
+      if not data then
+          return "Key not found"
+      end
+      
+      local scheduleData = cjson.decode(data)
+      local currentBooking = scheduleData.currentBooking + bookingCount
+      
+      if currentBooking > scheduleData.maxBooking then
+          return "Booking count exceeds maximum allowed"
+      end
+      
+      scheduleData.currentBooking = currentBooking
+      redis.call('SET', key, cjson.encode(scheduleData))
+      return nil
+    `;
+
+    const result = await this.client.eval(
+      luaScript,
+      1,
+      slotId,
+      bookingCount.toString(),
+    );
+    if (
+      result === 'Key not found' ||
+      result === 'Booking count exceeds maximum allowed'
+    ) {
+      return result;
+    }
+
+    return null; // No error, booking count updated successfully
+  }
 }

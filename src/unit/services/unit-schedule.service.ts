@@ -7,6 +7,7 @@ import {
 } from 'src/common/utils/helpers';
 import { Repository } from 'typeorm';
 import { ScheduleQueryDto } from '../controllers/query-dtos/unit-schedule.query.dto';
+import { BookSchedule } from '../dto/book-schedule.dto';
 import { UnitLeaves } from '../entities/unit-leaves.entity';
 import { UnitSchedule } from '../entities/unit-schedule.entity';
 import { Unit } from '../entities/unit.entity';
@@ -26,6 +27,22 @@ export class UnitScheduleService {
 
   async findAll(): Promise<UnitSchedule[]> {
     return await this.unitScheduleRepository.find();
+  }
+
+  async bookSchedule(
+    externalUnitId: string,
+    data: BookSchedule,
+  ): Promise<string> {
+    const unit = await this.UnitService.findOne(externalUnitId);
+
+    if (!unit?.id) {
+      throw new BadRequestException(
+        `cannot find unit with externalUnitId : ${externalUnitId} `,
+      );
+    }
+
+    // todo : update the response format
+    return this.RedisService.updateBookingCount(data.slotId, data.bookingCount);
   }
 
   async getUnitSchedule(

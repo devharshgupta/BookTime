@@ -1,4 +1,5 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Query } from '@nestjs/common';
+import { BookSchedule } from '../dto/book-schedule.dto';
 import { UnitScheduleService } from '../services/unit-schedule.service';
 import { ScheduleQueryDto } from './query-dtos/unit-schedule.query.dto';
 
@@ -15,5 +16,13 @@ export class UnitScheduleController {
       externalUnitId,
       scheduleQueryDto,
     );
+  }
+
+  @Patch(':externalUnitId')
+  async BookSchedule(
+    @Param('externalUnitId') externalUnitId: string,
+    @Body() bookSchedule: BookSchedule,
+  ): Promise<string> {
+    return this.unitScheduleService.bookSchedule(externalUnitId, bookSchedule);
   }
 }
