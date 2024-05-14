@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UnitLeavesController } from './controllers/unit-leaves.controller';
 import { UnitScheduleController } from './controllers/unit-schedule.controller';

@@ -1,4 +1,9 @@
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  forwardRef,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RedisService } from 'src/common/redis/redis.service';
 import {
@@ -8,6 +13,7 @@ import {
 import { Repository } from 'typeorm';
 import { ScheduleQueryDto } from '../controllers/query-dtos/unit-schedule.query.dto';
 import { BookSchedule } from '../dto/book-schedule.dto';
+import { DaySlot } from '../dto/unit.dto';
 import { UnitLeaves } from '../entities/unit-leaves.entity';
 import { UnitSchedule } from '../entities/unit-schedule.entity';
 import { Unit } from '../entities/unit.entity';
@@ -19,7 +25,7 @@ export class UnitScheduleService {
   constructor(
     @InjectRepository(UnitSchedule)
     private readonly unitScheduleRepository: Repository<UnitSchedule>,
-    @Inject(UnitService)
+    @Inject(forwardRef(() => UnitService))
     private readonly UnitService: UnitService,
     @Inject(RedisService)
     private readonly RedisService: RedisService,
@@ -236,5 +242,20 @@ export class UnitScheduleService {
     });
 
     return transformedSlots;
+  }
+
+  async getAggregatedSlotsByWeekDay(unitId: string): Promise<DaySlot[]> {
+    const queryBuilder = this.unitScheduleRepository
+      .createQueryBuilder('unit_schedule')
+      .select('weekDayName')
+      .addSelect(
+        `JSON_ARRAYAGG(JSON_OBJECT("startTime", TIME_FORMAT(startTime, '%H:%i:%s'), "endTime", TIME_FORMAT(endTime, '%H:%i:%s'), "maxBooking", maxBooking, "slotDuration", slotDuration, "metaText", metaText))`,
+        'slots',
+      )
+      .where('unit_schedule.unitId = :unitId', { unitId })
+      .groupBy('weekDayName');
+
+    const data: DaySlot[] = await queryBuilder.getRawMany();
+    return data;
   }
 }

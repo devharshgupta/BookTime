@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Put, Param, Body } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { CreateUnitDto, UpdateUnitDto } from '../dto/unit.dto';
+import { CreateUnitDto, DaySlot, UpdateUnitDto } from '../dto/unit.dto';
 import { UnitSchedule } from '../entities/unit-schedule.entity';
 import { Unit } from '../entities/unit.entity';
 import { UnitService } from '../services/unit.service';
@@ -12,15 +12,15 @@ export class UnitController {
   @Post()
   async create(
     @Body() createUnitDto: CreateUnitDto,
-  ): Promise<{ unit: Unit; unitSchedules: UnitSchedule[] }> {
+  ): Promise<{ unit: Unit; weeklyTimings: DaySlot[] }> {
     return this.unitService.createAndSchedule(createUnitDto);
   }
 
   @Put('')
   async update(
-    @Body() createUnitDto: CreateUnitDto,
-  ): Promise<{ unit: Unit; unitSchedules: UnitSchedule[] }> {
-    return this.unitService.updateAndSchedule(createUnitDto);
+    @Body() updateUnitDto: UpdateUnitDto,
+  ): Promise<{ unit: Unit; weeklyTimings: DaySlot[] }> {
+    return this.unitService.updateAndSchedule(updateUnitDto);
   }
 
   @Get('external/:externalUnitId')
@@ -29,14 +29,4 @@ export class UnitController {
   ): Promise<Unit | undefined> {
     return this.unitService.findOne(externalUnitId);
   }
-
-  // @Put(':id')
-  // async update(@Param('id') id: string, @Body() updateUnitDto: UpdateUnitDto): Promise<Unit | undefined> {
-  //     return this.unitService.update(+id, updateUnitDto);
-  // }
-
-  // @Delete(':id')
-  // async remove(@Param('id') id: string): Promise<void> {
-  //     await this.unitService.remove(+id);
-  // }
 }

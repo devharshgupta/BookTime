@@ -2,6 +2,7 @@ import { Type } from 'class-transformer';
 import {
   ArrayMinSize,
   ArrayNotEmpty,
+  IsBoolean,
   IsDateString,
   IsEnum,
   IsInt,
@@ -26,7 +27,7 @@ import {
 import { UnitSchedule } from '../entities/unit-schedule.entity';
 import { Unit } from '../entities/unit.entity';
 
-export class CreateUnitDto implements Partial<Unit> {
+export class UnitDto implements Partial<Unit> {
   @IsString()
   @IsNotEmpty()
   externalUnitId: string;
@@ -40,19 +41,16 @@ export class CreateUnitDto implements Partial<Unit> {
   @IsNotEmpty()
   endDate: string;
 
-  @ValidateNested({ each: true }) // Validate each element in the array
-  @ArrayNotEmpty({ message: 'At least one day must be provided.' })
-  @ArrayMinSize(1, { message: 'At least one day must be provided.' })
-  @Type(() => DaySlot) // Specify the type of elements in the array
-  @UniqueDays({ message: 'Each day should exist only once.' })
-  weeklyTimings: DaySlot[];
-
   @IsPositive()
   @IsOptional()
   slotFetchSizeInDays: number;
 
   @IsString()
+  @IsNotEmpty()
   type: string;
+
+  @IsBoolean()
+  isActive: boolean;
 }
 
 export class SlotTime implements Partial<UnitSchedule> {
@@ -96,16 +94,29 @@ export class DaySlot {
   slots: SlotTime[];
 }
 
+export class CreateUnitDto {
+  @ValidateNested({ each: true })
+  @Type(() => UnitDto)
+  unit: UnitDto;
+
+  @ValidateNested({ each: true }) // Validate each element in the array
+  @ArrayNotEmpty({ message: 'At least one day must be provided.' })
+  @ArrayMinSize(1, { message: 'At least one day must be provided.' })
+  @Type(() => DaySlot) // Specify the type of elements in the array
+  @UniqueDays({ message: 'Each day should exist only once.' })
+  weeklyTimings: DaySlot[];
+}
+
 export class UpdateUnitDto {
-  @IsOptional()
-  @IsString()
-  externalUnitId?: string;
+  @ValidateNested({ each: true })
+  @Type(() => UnitDto)
+  unit: UnitDto;
 
   @IsOptional()
-  @IsDateString()
-  slotStartDatetime?: string;
-
-  @IsOptional()
-  @IsDateString()
-  slotEndDatetime?: string;
+  @ValidateNested({ each: true }) // Validate each element in the array
+  @ArrayNotEmpty({ message: 'At least one day must be provided.' })
+  @ArrayMinSize(1, { message: 'At least one day must be provided.' })
+  @Type(() => DaySlot) // Specify the type of elements in the array
+  @UniqueDays({ message: 'Each day should exist only once.' })
+  weeklyTimings: DaySlot[];
 }
