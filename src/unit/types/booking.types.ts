@@ -1,4 +1,4 @@
-export type BookingSlot = {
+export class BookingSlot {
   startTime: string;
   endTime: string;
   maxBooking: number;
@@ -6,4 +6,9 @@ export type BookingSlot = {
   slotDuration: number;
   calendarDate: string;
   calendarDay: string;
-};
+}
+
+export class DaySchedule extends BookingSlot {
+  currentBooking: number;
+  slotId: string;
+}

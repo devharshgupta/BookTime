@@ -1,5 +1,6 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { RedisService } from 'src/common/redis/redis.service';
 import { GenerateTimeSlots } from 'src/common/utils/generateTimeSlots';
 import { Repository } from 'typeorm';
 import { CreateUnitDto } from '../dto/unit.dto';
@@ -13,6 +14,8 @@ export class UnitService {
     private unitRepository: Repository<Unit>,
     @InjectRepository(UnitSchedule)
     private UnitScheduleRepository: Repository<UnitSchedule>,
+    @Inject(RedisService)
+    private readonly RedisService: RedisService,
   ) {}
 
   async createAndSchedule(
@@ -114,7 +117,23 @@ export class UnitService {
   }
 
   async findOne(externalUnitId: string): Promise<Unit | undefined> {
-    return await this.unitRepository.findOne({ where: { externalUnitId } });
+    const cachedUnitData = await this.RedisService.get(
+      `externalUnit:${externalUnitId}`,
+    );
+
+    if (!cachedUnitData) {
+      const dbUnitData = await this.unitRepository.findOne({
+        where: { externalUnitId },
+      });
+      await this.RedisService.set(
+        `externalUnit:${externalUnitId}`,
+        dbUnitData,
+        3600, // caching data for 1 hr
+      );
+      return dbUnitData;
+    }
+
+    return JSON.parse(cachedUnitData) as unknown as Unit;
   }
 
   // async remove(id: number): Promise<void> {
