@@ -1,7 +1,5 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { RedisModule } from 'src/common/redis/redis.module';
-import { RedisService } from 'src/common/redis/redis.service';
 import { UnitLeavesController } from './controllers/unit-leaves.controller';
 import { UnitScheduleController } from './controllers/unit-schedule.controller';
 import { UnitController } from './controllers/unit.controller';
