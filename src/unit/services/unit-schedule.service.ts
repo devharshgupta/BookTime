@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RedisService } from 'src/common/redis/redis.service';
+import { GenerateTimeSlots } from 'src/common/utils/generateTimeSlots';
 import {
   addDaysToDate,
   GetSecondsForDateFromNow,
@@ -24,7 +25,7 @@ import { UnitService } from './unit.service';
 export class UnitScheduleService {
   constructor(
     @InjectRepository(UnitSchedule)
-    private readonly unitScheduleRepository: Repository<UnitSchedule>,
+    private readonly UnitScheduleRepository: Repository<UnitSchedule>,
     @Inject(forwardRef(() => UnitService))
     private readonly UnitService: UnitService,
     @Inject(RedisService)
@@ -32,7 +33,7 @@ export class UnitScheduleService {
   ) {}
 
   async findAll(): Promise<UnitSchedule[]> {
-    return await this.unitScheduleRepository.find();
+    return await this.UnitScheduleRepository.find();
   }
 
   async bookSchedule(
@@ -127,8 +128,9 @@ export class UnitScheduleService {
     startDate: string,
     startDatePlusDays: number,
   ): Promise<BookingSlot[] | []> {
-    const query = this.unitScheduleRepository
-      .createQueryBuilder('unit_schedule')
+    const query = this.UnitScheduleRepository.createQueryBuilder(
+      'unit_schedule',
+    )
       .select([
         'unit_schedule.startTime as startTime ',
         'unit_schedule.endTime as endTime',
@@ -245,8 +247,9 @@ export class UnitScheduleService {
   }
 
   async getAggregatedSlotsByWeekDay(unitId: string): Promise<DaySlot[]> {
-    const queryBuilder = this.unitScheduleRepository
-      .createQueryBuilder('unit_schedule')
+    const queryBuilder = this.UnitScheduleRepository.createQueryBuilder(
+      'unit_schedule',
+    )
       .select('weekDayName')
       .addSelect(
         `JSON_ARRAYAGG(JSON_OBJECT("startTime", TIME_FORMAT(startTime, '%H:%i:%s'), "endTime", TIME_FORMAT(endTime, '%H:%i:%s'), "maxBooking", maxBooking, "slotDuration", slotDuration, "metaText", metaText))`,
@@ -257,5 +260,43 @@ export class UnitScheduleService {
 
     const data: DaySlot[] = await queryBuilder.getRawMany();
     return data;
+  }
+
+  async createUnitSchedule(
+    unitId: string,
+    weeklyTimings: DaySlot[],
+  ): Promise<UnitSchedule[]> {
+    const unitScheduleToInsert = [];
+    weeklyTimings.forEach((day) => {
+      day.slots.forEach((slot) => {
+        const generatedTimeSlots = GenerateTimeSlots(slot);
+        generatedTimeSlots.forEach((time) =>
+          unitScheduleToInsert.push({
+            weekDayName: day.weekDayName,
+            startTime: time.startTime,
+            endTime: time.endTime,
+            maxBooking: time.maxBooking,
+            metaText: time.metaText,
+            slotDuration: time.slotDuration,
+            unitId: unitId,
+          }),
+        );
+      });
+    });
+
+    const unitSchedules =
+      this.UnitScheduleRepository.create(unitScheduleToInsert);
+    await this.UnitScheduleRepository.insert(unitSchedules);
+    return unitSchedules;
+  }
+
+  async deleteUnitSchedule(unitId: string): Promise<void> {
+    const deleteResult = await this.UnitScheduleRepository.createQueryBuilder()
+      .delete()
+      .from(UnitSchedule)
+      .where('unitId = :unitId', { unitId: unitId })
+      .execute();
+
+    console.log(`Deleted ${deleteResult.affected} schedules for ${unitId}.`);
   }
 }

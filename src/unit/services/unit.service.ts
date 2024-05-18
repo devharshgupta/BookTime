@@ -6,10 +6,13 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RedisService } from 'src/common/redis/redis.service';
-import { GenerateTimeSlots } from 'src/common/utils/generateTimeSlots';
 import { Repository } from 'typeorm';
-import { CreateUnitDto, DaySlot, UpdateUnitDto } from '../dto/unit.dto';
-import { UnitSchedule } from '../entities/unit-schedule.entity';
+import {
+  CreateUnitDto,
+  DaySlot,
+  UnitDto,
+  UpdateUnitDto,
+} from '../dto/unit.dto';
 import { Unit } from '../entities/unit.entity';
 import { UnitScheduleService } from './unit-schedule.service';
 
@@ -18,10 +21,8 @@ export class UnitService {
   constructor(
     @InjectRepository(Unit)
     private unitRepository: Repository<Unit>,
-    @InjectRepository(UnitSchedule)
-    private UnitScheduleRepository: Repository<UnitSchedule>,
     @Inject(forwardRef(() => UnitScheduleService))
-    private UnitScheduleService: UnitScheduleService,
+    private readonly UnitScheduleService: UnitScheduleService,
     @Inject(RedisService)
     private readonly RedisService: RedisService,
   ) {}
@@ -29,9 +30,7 @@ export class UnitService {
   async createAndSchedule(
     createUnitDto: CreateUnitDto,
   ): Promise<{ unit: Unit; weeklyTimings: DaySlot[] }> {
-    const existingUnit = await this.unitRepository.findOne({
-      where: { externalUnitId: createUnitDto.unit.externalUnitId },
-    });
+    const existingUnit = await this.findOne(createUnitDto.unit.externalUnitId);
 
     if (existingUnit?.id) {
       throw new BadRequestException(
@@ -39,30 +38,13 @@ export class UnitService {
       );
     }
 
-    const unit = this.unitRepository.create(createUnitDto.unit);
-    await this.unitRepository.save(unit);
+    const unit = await this.createUnit(createUnitDto.unit);
 
-    const unitScheduleToInsert = [];
-    createUnitDto.weeklyTimings.forEach((day) => {
-      day.slots.forEach((slot) => {
-        const generatedTimeSlots = GenerateTimeSlots(slot);
-        generatedTimeSlots.forEach((time) =>
-          unitScheduleToInsert.push({
-            weekDayName: day.weekDayName,
-            startTime: time.startTime,
-            endTime: time.endTime,
-            maxBooking: time.maxBooking,
-            metaText: time.metaText,
-            slotDuration: time.slotDuration,
-            unitId: unit?.id,
-          }),
-        );
-      });
-    });
-
-    const unitSchedules =
-      this.UnitScheduleRepository.create(unitScheduleToInsert);
-    await this.UnitScheduleRepository.insert(unitSchedules);
+    // create unit schedule
+    await this.UnitScheduleService.createUnitSchedule(
+      unit?.id,
+      createUnitDto.weeklyTimings,
+    );
 
     const updatedSchedule =
       await this.UnitScheduleService.getAggregatedSlotsByWeekDay(unit.id);
@@ -114,34 +96,11 @@ export class UnitService {
       updateUnitDto.weeklyTimings &&
       Array.isArray(updateUnitDto.weeklyTimings)
     ) {
-      const unitScheduleToInsert = [];
-      updateUnitDto.weeklyTimings.forEach((day) => {
-        day.slots.forEach((time) => {
-          unitScheduleToInsert.push({
-            weekDayName: day.weekDayName,
-            startTime: time.startTime,
-            endTime: time.endTime,
-            maxBooking: time.maxBooking,
-            metaText: time.metaText,
-            slotDuration: time.slotDuration,
-            unitid: existingUnit.id,
-          });
-        });
-      });
-      const deleteResult =
-        await this.UnitScheduleRepository.createQueryBuilder()
-          .delete()
-          .from(UnitSchedule)
-          .where('unitId = :unitId', { unitId: updatedUnit.id })
-          .execute();
-
-      console.log(
-        `Deleted ${deleteResult.affected} schedules for ${updatedUnit.id}.`,
+      await this.UnitScheduleService.deleteUnitSchedule(updatedUnit.id);
+      await this.UnitScheduleService.createUnitSchedule(
+        updatedUnit.id,
+        updateUnitDto.weeklyTimings,
       );
-
-      const unitSchedules =
-        this.UnitScheduleRepository.create(unitScheduleToInsert);
-      await this.UnitScheduleRepository.insert(unitSchedules);
     }
 
     const updatedSchedule =
@@ -173,5 +132,11 @@ export class UnitService {
     }
 
     return JSON.parse(cachedUnitData) as unknown as Unit;
+  }
+
+  async createUnit(data: UnitDto): Promise<Unit> {
+    const unit = this.unitRepository.create(data);
+    await this.unitRepository.save(unit);
+    return unit;
   }
 }
