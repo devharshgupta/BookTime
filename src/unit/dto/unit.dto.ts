@@ -95,8 +95,9 @@ export class DaySlot {
 }
 
 export class CreateUnitDto {
-  @ValidateNested({ each: true })
+  @IsNotEmpty()
   @Type(() => UnitDto)
+  @ValidateNested({ each: true })
   unit: UnitDto;
 
   @ValidateNested({ each: true }) // Validate each element in the array

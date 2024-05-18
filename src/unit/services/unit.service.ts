@@ -33,8 +33,10 @@ export class UnitService {
       where: { externalUnitId: createUnitDto.unit.externalUnitId },
     });
 
-    if (existingUnit.id) {
-      throw new BadRequestException(`unit already exists : ${existingUnit}`);
+    if (existingUnit?.id) {
+      throw new BadRequestException(
+        `unit already exists with unitId: ${existingUnit?.id}`,
+      );
     }
 
     const unit = this.unitRepository.create(createUnitDto.unit);
