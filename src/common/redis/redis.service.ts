@@ -125,4 +125,15 @@ export class RedisService {
 
     return null; // No error, booking count updated successfully
   }
+
+  async deleteKeysByPattern(pattern: string): Promise<number> {
+    const keys = await this.client.keys(pattern);
+    if (keys.length === 0) {
+      return 0;
+    }
+    const pipeline = this.client.pipeline();
+    keys.forEach((key) => pipeline.del(key));
+    const results = await pipeline.exec();
+    return results.length;
+  }
 }

@@ -68,7 +68,6 @@ export class UnitScheduleService {
       scheduleQueryDto.startDate || new Date().toISOString().split('T')[0];
 
     const startDatePlusDays = scheduleQueryDto.plusDays || 0;
-
     const currentDate = new Date(startDate);
     const now = new Date();
 
@@ -92,13 +91,12 @@ export class UnitScheduleService {
 
     const allDates: string[] = [];
 
-    console.log(allDates);
-
     for (let i = 0; i <= startDatePlusDays; i++) {
       const currentDate = new Date(startDate);
       currentDate.setDate(currentDate.getDate() + i);
       allDates.push(currentDate.toISOString().split('T')[0]);
     }
+    console.log(allDates);
 
     const promises = allDates.map(async (eachDate) => {
       try {
@@ -174,17 +172,14 @@ export class UnitScheduleService {
   async getSlotsFromRedis(
     externalUnitId: string,
     date: string,
-  ): Promise<{ date; slots: DaySchedule[] }> {
-    const slotForADate = await this.RedisService.get(
-      `isScheduleAvailable:${externalUnitId}:${date}`,
+  ): Promise<{ date: string; slots: DaySchedule[] }> {
+    const slotForADate = await this.getIsSceduleAvailabeAtRedis(
+      externalUnitId,
+      date,
     );
 
     if (!slotForADate) {
-      await this.RedisService.set(
-        `isScheduleAvailable:${externalUnitId}:${date}`,
-        'true',
-        GetSecondsForDateFromNow(date),
-      );
+      await this.setIsSceduleAvailabeAtRedis(externalUnitId, date);
 
       const dbSlots: BookingSlot[] = await this.getScheduleFromDb(
         externalUnitId,
@@ -298,5 +293,37 @@ export class UnitScheduleService {
       .execute();
 
     console.log(`Deleted ${deleteResult.affected} schedules for ${unitId}.`);
+  }
+
+  async getIsSceduleAvailabeAtRedis(externalUnitId: string, date: string) {
+    return this.RedisService.get(
+      `isScheduleAvailable:${externalUnitId}:${date}`,
+    );
+  }
+
+  async setIsSceduleAvailabeAtRedis(externalUnitId: string, date: string) {
+    return this.RedisService.set(
+      `isScheduleAvailable:${externalUnitId}:${date}`,
+      'true',
+      GetSecondsForDateFromNow(date),
+    );
+  }
+
+  async getIsSceduleAvailabeAtRedisForUnit(externalUnitId, pattern = '*') {
+    return this.RedisService.fetchValuesByPattern(
+      `isScheduleAvailable:${externalUnitId}:${pattern}`,
+    );
+  }
+
+  async deleteScheculeFromRedis(externalUnitId: string) {
+    return this.RedisService.deleteKeysByPattern(
+      `schedule:${externalUnitId}:*`,
+    );
+  }
+
+  async deleteIsScheculeAavailableFromRedis(externalUnitId: string) {
+    return this.RedisService.deleteKeysByPattern(
+      `isScheduleAvailable:${externalUnitId}:*`,
+    );
   }
 }

@@ -7,6 +7,7 @@ import {
   IsEnum,
   IsInt,
   IsNotEmpty,
+  IsNotEmptyObject,
   IsOptional,
   IsPositive,
   IsString,
@@ -50,6 +51,7 @@ export class UnitDto implements Partial<Unit> {
   type: string;
 
   @IsBoolean()
+  @IsOptional()
   isActive: boolean;
 }
 
@@ -82,7 +84,7 @@ export class SlotTime implements Partial<UnitSchedule> {
 
 export class DaySlot {
   @IsEnum(DayName, {
-    message: 'Invalid day name. Use Sunday, Monday, Tuesday, etc.',
+    message: 'Invalid weekDayName. Use Sunday, Monday, Tuesday, etc.',
   })
   weekDayName: DayName;
 
@@ -95,7 +97,7 @@ export class DaySlot {
 }
 
 export class CreateUnitDto {
-  @IsNotEmpty()
+  @IsNotEmptyObject()
   @Type(() => UnitDto)
   @ValidateNested({ each: true })
   unit: UnitDto;
@@ -109,6 +111,7 @@ export class CreateUnitDto {
 }
 
 export class UpdateUnitDto {
+  @IsNotEmptyObject()
   @ValidateNested({ each: true })
   @Type(() => UnitDto)
   unit: UnitDto;
@@ -120,4 +123,8 @@ export class UpdateUnitDto {
   @Type(() => DaySlot) // Specify the type of elements in the array
   @UniqueDays({ message: 'Each day should exist only once.' })
   weeklyTimings: DaySlot[];
+
+  @IsOptional()
+  @IsBoolean()
+  forceUpdate: false;
 }

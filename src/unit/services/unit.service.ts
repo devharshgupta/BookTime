@@ -55,47 +55,25 @@ export class UnitService {
     };
   }
 
-  // TODO : Add check to get schedule from redis, update it , or only update future schedule
   async updateAndSchedule(
     updateUnitDto: UpdateUnitDto,
-  ): Promise<{ unit: Unit; weeklyTimings: DaySlot[] }> {
-    const existingUnit = await this.unitRepository.findOne({
-      where: { externalUnitId: updateUnitDto.unit.externalUnitId },
-    });
-
-    if (!existingUnit.id) {
-      throw new BadRequestException(
-        `no unit found with externalUnitId : ${updateUnitDto.unit.externalUnitId}`,
-      );
-    }
-
-    await this.unitRepository
-      .createQueryBuilder()
-      .update(Unit)
-      .set(updateUnitDto.unit)
-      .where('externalUnitId = :externalUnitId', {
-        externalUnitId: updateUnitDto.unit.externalUnitId,
-      })
-      .execute();
-
-    await this.unitRepository.save(
-      Object.assign(existingUnit, updateUnitDto.unit),
-    );
-
-    const updatedUnit = await this.unitRepository.findOne({
-      where: { externalUnitId: updateUnitDto.unit.externalUnitId },
-    });
-
-    await this.RedisService.set(
-      `externalUnit:${updatedUnit.externalUnitId}`,
-      updatedUnit,
-      3600, // caching data for 1 hr
-    );
+  ): Promise<{ unit: Unit; weeklyTimings: DaySlot[]; forceUpdate: boolean }> {
+    const updatedUnit = await this.updateUnit(updateUnitDto.unit);
 
     if (
       updateUnitDto.weeklyTimings &&
       Array.isArray(updateUnitDto.weeklyTimings)
     ) {
+      if (updateUnitDto?.forceUpdate) {
+        await this.UnitScheduleService.deleteIsScheculeAavailableFromRedis(
+          updateUnitDto.unit.externalUnitId,
+        );
+
+        await this.UnitScheduleService.deleteScheculeFromRedis(
+          updateUnitDto.unit.externalUnitId,
+        );
+      }
+
       await this.UnitScheduleService.deleteUnitSchedule(updatedUnit.id);
       await this.UnitScheduleService.createUnitSchedule(
         updatedUnit.id,
@@ -105,12 +83,13 @@ export class UnitService {
 
     const updatedSchedule =
       await this.UnitScheduleService.getAggregatedSlotsByWeekDay(
-        existingUnit.id,
+        updatedUnit.id,
       );
 
     return {
       unit: updatedUnit,
       weeklyTimings: updatedSchedule,
+      forceUpdate: updateUnitDto.forceUpdate,
     };
   }
 
@@ -123,6 +102,11 @@ export class UnitService {
       const dbUnitData = await this.unitRepository.findOne({
         where: { externalUnitId },
       });
+
+      if (!dbUnitData?.id) {
+        return undefined;
+      }
+
       await this.RedisService.set(
         `externalUnit:${externalUnitId}`,
         dbUnitData,
@@ -138,5 +122,39 @@ export class UnitService {
     const unit = this.unitRepository.create(data);
     await this.unitRepository.save(unit);
     return unit;
+  }
+
+  async updateUnit(data: UnitDto): Promise<Unit> {
+    const existingUnit = await this.findOne(data?.externalUnitId);
+
+    if (!existingUnit.id) {
+      throw new BadRequestException(
+        `no unit found with externalUnitId : ${data?.externalUnitId}`,
+      );
+    }
+
+    await this.unitRepository
+      .createQueryBuilder()
+      .update(Unit)
+      .set(data)
+      .where('externalUnitId = :externalUnitId', {
+        externalUnitId: data.externalUnitId,
+      })
+      .execute();
+
+    await this.unitRepository.save(Object.assign(existingUnit, data));
+
+    const updatedUnit = await this.unitRepository.findOne({
+      where: { externalUnitId: data.externalUnitId },
+    });
+
+    // cache refresh
+    await this.RedisService.set(
+      `externalUnit:${updatedUnit.externalUnitId}`,
+      updatedUnit,
+      3600, // caching data for 1 hr
+    );
+
+    return updatedUnit;
   }
 }
