@@ -48,8 +48,16 @@ export class UnitScheduleService {
       );
     }
 
-    // todo : update the response format
-    return this.RedisService.updateBookingCount(data.slotId, data.bookingCount);
+    const response = await this.RedisService.updateBookingCount(
+      data.slotId,
+      data.bookingCount,
+    );
+
+    if (response != null) {
+      throw new BadRequestException(response);
+    }
+
+    return response;
   }
 
   async getUnitSchedule(

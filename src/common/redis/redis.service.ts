@@ -93,7 +93,7 @@ export class RedisService {
       
       local data = redis.call('GET', key)
       if not data then
-          return "Key not found"
+          return "invalid slot id"
       end
       
       local scheduleData = cjson.decode(data)
@@ -115,7 +115,7 @@ export class RedisService {
       bookingCount.toString(),
     );
     if (
-      result === 'Key not found' ||
+      result === 'invalid slot id' ||
       result === 'Booking count exceeds maximum allowed'
     ) {
       return result;
