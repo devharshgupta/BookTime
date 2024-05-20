@@ -13,6 +13,7 @@ import { PageDto } from 'src/common/dto/page.dto';
 import { DeleteResult } from 'typeorm';
 import {
   createOrUpdateUnitLeaveDto,
+  deleteUnitLeaveDto,
   UnitLeaveDto,
 } from '../dto/unit-leaves.dto';
 import { UnitLeaves } from '../entities/unit-leaves.entity';
@@ -45,12 +46,11 @@ export class UnitLeavesController {
     return this.unitLeavesService.UpdateOne(id, updateUnitLeaveDto);
   }
 
-  // todo if recent leave then update the cache
-  @Delete(':id/external/:externalUnitId')
+  @Delete(':id')
   async remove(
     @Param('id') id: string,
-    @Param('externalUnitId') externalUnitId: string,
+    @Body() deleteUnitLeaveDto: deleteUnitLeaveDto,
   ): Promise<DeleteResult> {
-    return await this.unitLeavesService.DeleteOne(id, externalUnitId);
+    return await this.unitLeavesService.DeleteOne(id, deleteUnitLeaveDto);
   }
 }

@@ -55,3 +55,13 @@ export class createOrUpdateUnitLeaveDto extends UnitLeaveDto {
   @IsOptional()
   forceLeaveCreation = false;
 }
+
+export class deleteUnitLeaveDto {
+  @IsString()
+  @IsNotEmpty()
+  externalUnitId: string;
+
+  @IsBoolean()
+  @IsOptional()
+  forceLeaveDeletion = false;
+}

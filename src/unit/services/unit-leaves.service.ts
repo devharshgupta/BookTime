@@ -10,7 +10,10 @@ import { PageOptionsDto } from 'src/common/dto/page-option.dto';
 import { PageDto } from 'src/common/dto/page.dto';
 import { DeleteResult, Repository } from 'typeorm';
 import { UnitLeaveQuery } from '../controllers/query-dtos/unit-leave.query.dto';
-import { createOrUpdateUnitLeaveDto } from '../dto/unit-leaves.dto';
+import {
+  createOrUpdateUnitLeaveDto,
+  deleteUnitLeaveDto,
+} from '../dto/unit-leaves.dto';
 import { UnitLeaves } from '../entities/unit-leaves.entity';
 import { Unit } from '../entities/unit.entity';
 import { UnitScheduleService } from './unit-schedule.service';
@@ -281,12 +284,57 @@ export class UnitLeavesService {
     return updatedUnitLeave;
   }
 
-  async DeleteOne(id: string, externalUnitId: string): Promise<DeleteResult> {
-    const unitLeaveToUpdate = await this.findOne(id, externalUnitId);
+  async DeleteOne(
+    id: string,
+    deleteUnitLeaveDto: deleteUnitLeaveDto,
+  ): Promise<DeleteResult> {
+    const unitLeaveToUpdate = await this.findOne(
+      id,
+      deleteUnitLeaveDto.externalUnitId,
+    );
 
     if (!unitLeaveToUpdate?.id) {
       throw new NotFoundException(
-        `No Leave found on externalUnitId :${externalUnitId} with Id : ${id} `,
+        `No Leave found on externalUnitId :${deleteUnitLeaveDto.externalUnitId} with Id : ${id} `,
+      );
+    }
+
+    const allDates: string[] = [];
+    const startDate = new Date(unitLeaveToUpdate.startDate);
+    const endDate = new Date(unitLeaveToUpdate.endDate);
+
+    while (startDate <= endDate) {
+      allDates.push(startDate.toISOString().split('T')[0]);
+      startDate.setDate(startDate.getDate() + 1);
+    }
+
+    const isSceduleAvailabeAtRedisForLeaveDates = (
+      await Promise.all(
+        allDates.map(async (singleDate) => {
+          const isAvailable =
+            await this.UnitScheduleService.getIsSceduleAvailabeAtRedis(
+              deleteUnitLeaveDto.externalUnitId,
+              singleDate,
+            );
+          if (isAvailable == 'true') {
+            return singleDate;
+          }
+          return null;
+        }),
+      )
+    ).filter((date) => date !== null);
+
+    console.log(isSceduleAvailabeAtRedisForLeaveDates);
+
+    if (
+      Array.isArray(isSceduleAvailabeAtRedisForLeaveDates) &&
+      isSceduleAvailabeAtRedisForLeaveDates.length &&
+      !deleteUnitLeaveDto?.forceLeaveDeletion
+    ) {
+      throw new BadRequestException(
+        `schedule already exists for  dates (${isSceduleAvailabeAtRedisForLeaveDates.join(
+          ',',
+        )}) , if required use forceLeaveDeletion=true flag this will delete all existing bookings`,
       );
     }
 
