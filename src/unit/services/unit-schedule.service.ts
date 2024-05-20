@@ -104,7 +104,6 @@ export class UnitScheduleService {
       currentDate.setDate(currentDate.getDate() + i);
       allDates.push(currentDate.toISOString().split('T')[0]);
     }
-    console.log(allDates);
 
     const promises = allDates.map(async (eachDate) => {
       try {
@@ -302,8 +301,6 @@ export class UnitScheduleService {
       .from(UnitSchedule)
       .where('unitId = :unitId', { unitId: unitId })
       .execute();
-
-    console.log(`Deleted ${deleteResult.affected} schedules for ${unitId}.`);
   }
 
   async getIsSceduleAvailabeAtRedis(externalUnitId: string, date: string) {

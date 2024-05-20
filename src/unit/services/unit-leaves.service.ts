@@ -70,8 +70,6 @@ export class UnitLeavesService {
       )
     ).filter((date) => date !== null);
 
-    console.log(isSceduleAvailabeAtRedisForLeaveDates);
-
     if (
       Array.isArray(isSceduleAvailabeAtRedisForLeaveDates) &&
       isSceduleAvailabeAtRedisForLeaveDates.length &&
@@ -97,7 +95,6 @@ export class UnitLeavesService {
           date,
         );
 
-        console.log(date);
         await this.UnitScheduleService.deleteScheculeFromRedis(
           createUnitLeaveDto.externalUnitId,
           `${date}:*`,
@@ -114,8 +111,6 @@ export class UnitLeavesService {
   ): Promise<PageDto<UnitLeaves>> {
     const queryBuilder =
       this.unitLeavesRepository.createQueryBuilder('UnitLeaves');
-
-    console.log(query);
 
     switch (true) {
       case query.id != '': {
@@ -247,8 +242,6 @@ export class UnitLeavesService {
       )
     ).filter((date) => date !== null);
 
-    console.log(isSceduleAvailabeAtRedisForLeaveDates);
-
     if (
       Array.isArray(isSceduleAvailabeAtRedisForLeaveDates) &&
       isSceduleAvailabeAtRedisForLeaveDates.length &&
@@ -274,7 +267,6 @@ export class UnitLeavesService {
           date,
         );
 
-        console.log(date);
         await this.UnitScheduleService.deleteScheculeFromRedis(
           updateUnitLeaveDto.externalUnitId,
           `${date}:*`,
@@ -323,8 +315,6 @@ export class UnitLeavesService {
         }),
       )
     ).filter((date) => date !== null);
-
-    console.log(isSceduleAvailabeAtRedisForLeaveDates);
 
     if (
       Array.isArray(isSceduleAvailabeAtRedisForLeaveDates) &&

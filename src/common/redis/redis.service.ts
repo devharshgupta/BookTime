@@ -12,10 +12,8 @@ export class RedisService {
     value: string | object,
     ttlInSecond: number,
   ): Promise<void> {
-    Logger.log(key, value, ttlInSecond);
     value = typeof value === 'string' ? value : JSON.stringify(value);
     const result = await this.client.set(key, value, 'EX', ttlInSecond);
-    Logger.log(`Redis Set key : ${key} `, result);
     if (result != 'OK') {
       throw new Error('Something went wrong with redis'); // or throw the error as per your needs
     }
