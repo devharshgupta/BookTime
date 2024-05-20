@@ -19,10 +19,6 @@ export class UnitLeaveDto implements Partial<UnitLeaves> {
   @IsNotEmpty()
   externalUnitId: string;
 
-  @IsString()
-  @IsNotEmpty()
-  unitId: string;
-
   @IsDateString()
   @IsNotEmpty()
   startDate: string;

@@ -24,7 +24,6 @@ import { UnitLeaveQuery } from './query-dtos/unit-leave.query.dto';
 export class UnitLeavesController {
   constructor(private readonly unitLeavesService: UnitLeavesService) {}
 
-  // todo if recent leave then update the cache
   @Post()
   async create(@Body() data: createOrUpdateUnitLeaveDto): Promise<UnitLeaves> {
     return this.unitLeavesService.create(data);
