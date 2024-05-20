@@ -22,7 +22,6 @@ import { UnitModule } from './unit/unit.module';
       database: process.env.DB_SCHEMA,
       entities: [path.join(__dirname, '**/*.entity{.ts,.js}')],
       synchronize: process.env.DB_SYNCHRONIZE?.toLowerCase() === 'true',
-      logging: ['error', 'info', 'query'],
     }),
     UnitModule,
   ],
