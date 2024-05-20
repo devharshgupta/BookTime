@@ -4,7 +4,7 @@ import { BaseEntity } from '../../common/entities/base.entity';
 @Entity()
 export class UnitLeaves extends BaseEntity {
   @Column({ type: 'bigint', unsigned: true })
-  @Index('unitId_idx', { unique: true })
+  @Index('unitId_idx')
   unitId: string;
 
   @Column({ type: 'date' })

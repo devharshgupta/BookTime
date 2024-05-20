@@ -5,6 +5,7 @@ import {
   IsNotEmpty,
   Matches,
   IsDateString,
+  IsBoolean,
 } from 'class-validator';
 import {
   isGreaterThanStartDate,
@@ -47,4 +48,10 @@ export class UnitLeaveDto implements Partial<UnitLeaves> {
   @MaxLength(255)
   @IsNotEmpty()
   metaText?: string;
+}
+
+export class createOrUpdateUnitLeaveDto extends UnitLeaveDto {
+  @IsBoolean()
+  @IsOptional()
+  forceLeaveCreation = false;
 }

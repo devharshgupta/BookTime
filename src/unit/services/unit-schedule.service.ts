@@ -178,7 +178,7 @@ export class UnitScheduleService {
       date,
     );
 
-    if (!slotForADate) {
+    if (slotForADate != 'true') {
       await this.setIsSceduleAvailabeAtRedis(externalUnitId, date);
 
       const dbSlots: BookingSlot[] = await this.getScheduleFromDb(
@@ -315,15 +315,18 @@ export class UnitScheduleService {
     );
   }
 
-  async deleteScheculeFromRedis(externalUnitId: string) {
+  async deleteScheculeFromRedis(externalUnitId: string, pattern = '*') {
     return this.RedisService.deleteKeysByPattern(
-      `schedule:${externalUnitId}:*`,
+      `schedule:${externalUnitId}:${pattern}`,
     );
   }
 
-  async deleteIsScheculeAavailableFromRedis(externalUnitId: string) {
+  async deleteIsScheculeAavailableFromRedis(
+    externalUnitId: string,
+    pattern = '*',
+  ) {
     return this.RedisService.deleteKeysByPattern(
-      `isScheduleAvailable:${externalUnitId}:*`,
+      `isScheduleAvailable:${externalUnitId}:${pattern}`,
     );
   }
 }

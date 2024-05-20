@@ -22,7 +22,6 @@ export class RedisService {
   }
 
   async get(key: string): Promise<string | null> {
-    Logger.log(`get key : ${key} `);
     return this.client.get(key);
   }
 
@@ -38,7 +37,6 @@ export class RedisService {
   }
 
   async getKeysByPattern(pattern: string): Promise<string[]> {
-    // const client = this.redisService.getClient();
     const keys = await this.client.keys(pattern);
     return keys;
   }
