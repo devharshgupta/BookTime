@@ -162,6 +162,9 @@ export class UnitScheduleService {
           '(unit_leaves.startDate = calendar.calendarDate AND unit_schedule.startTime < unit_leaves.startTime) OR ' +
           '(unit_leaves.endDate <= calendar.calendarDate AND unit_schedule.startTime > unit_leaves.endTime)))',
       )
+      .groupBy(
+        'calendar.calendarDate, unit_schedule.startTime, unit_schedule.endTime, unit_schedule.maxBooking, unit_schedule.metaText, unit_schedule.slotDuration, calendar.calendarDay',
+      )
       .orderBy('calendar.calendarDate')
       .addOrderBy('unit_schedule.startTime');
 
