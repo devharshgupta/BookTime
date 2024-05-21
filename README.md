@@ -1,3 +1,6 @@
+
+---
+
 ## BookTime
 
 BookTime is an open-source project aimed at providing a comprehensive booking and reservation management system. Built with a microservice architecture, it offers scalability, flexibility, and ease of deployment for organizations needing efficient slot reservation handling.
@@ -42,6 +45,10 @@ To start using BookTime, ensure you have the following prerequisites:
 
 Refer to the [API Documentation](https://documenter.getpostman.com/view/19578543/2sA3QngYxX) for detailed usage instructions and endpoints.
 
+### Detailed Article Coming Soon
+
+Stay tuned for an upcoming detailed article on Medium by devharshgupta.com. The article will delve into the inner workings and design choices of BookTime, providing valuable insights into its architecture and functionality.
+
 ### License
 
 BookTime is free to use, but it is not intended for offering as a SaaS service. Please refer to the [LICENSE](LICENSE) file for more details.
@@ -50,6 +57,3 @@ BookTime is free to use, but it is not intended for offering as a SaaS service. 
 
 For questions or additional information, connect with me on [LinkedIn](https://www.linkedin.com/in/devharshgupta/).
 
----
-
-Feel free to customize and expand upon this README as needed for your project.
