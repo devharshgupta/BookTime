@@ -47,7 +47,7 @@ Refer to the [API Documentation](https://documenter.getpostman.com/view/19578543
 
 ### Detailed Article Coming Soon
 
-Stay tuned for an upcoming detailed article on Medium by devharshgupta.com. The article will delve into the inner workings and design choices of BookTime, providing valuable insights into its architecture and functionality.
+Stay tuned for an upcoming detailed article on [Medium by devharshgupta](https://medium.com/@devharshgupta.com). The article will delve into the inner workings and design choices of BookTime, providing valuable insights into its architecture and functionality.
 
 ### License
 
